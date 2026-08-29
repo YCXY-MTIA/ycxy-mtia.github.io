@@ -204,7 +204,7 @@ export default function Navbar() {
     <header className="nav" ref={headerRef}>
       <div className="nav-inner">
         <a className="nav-brand" href="#home" aria-label={SITE.nameZh}>
-          <img className="nav-logo" src="/images/logo.png" alt="" aria-hidden="true" />
+          <img className="nav-logo" src="/images/logo-flat.png" alt="" aria-hidden="true" />
         </a>
 
         <nav className="pill-nav-items" aria-label="站点导航">
