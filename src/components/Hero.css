@@ -1,0 +1,411 @@
+.hero {
+  height: 210vh;
+}
+
+.hero-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 顶部灯光照射背景 */
+.hero-rays {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* 极少量光尘 */
+.hero-dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero-dust span {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #dfe8ff;
+  opacity: 0;
+  animation: dust-float 19s ease-in-out infinite;
+}
+
+.hero-dust span:nth-child(1) { left: 18%; top: 32%; animation-delay: 0s; }
+.hero-dust span:nth-child(2) { left: 30%; top: 64%; animation-delay: -4.2s; animation-duration: 23s; }
+.hero-dust span:nth-child(3) { left: 47%; top: 24%; animation-delay: -8.6s; }
+.hero-dust span:nth-child(4) { left: 58%; top: 70%; animation-delay: -12.4s; animation-duration: 21s; }
+.hero-dust span:nth-child(5) { left: 71%; top: 36%; animation-delay: -15.8s; }
+.hero-dust span:nth-child(6) { left: 83%; top: 58%; animation-delay: -2.8s; animation-duration: 25s; }
+.hero-dust span:nth-child(7) { left: 24%; top: 46%; animation-delay: -10.2s; animation-duration: 22s; }
+.hero-dust span:nth-child(8) { left: 66%; top: 20%; animation-delay: -17.6s; }
+
+@keyframes dust-float {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  30% {
+    opacity: 0.26;
+  }
+  70% {
+    opacity: 0.14;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-110px);
+  }
+}
+
+/* 顶部品牌信息：大标题压入 3D 会徽后方，形成景深 */
+.hero-brand {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(50vh + clamp(115px, 16.5vw, 210px) - 30px);
+  text-align: center;
+  z-index: 2;
+  will-change: opacity, transform;
+}
+
+.hero-brand h1 {
+  font-size: clamp(52px, 6.5vw, 128px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+}
+
+.hero-en {
+  margin-top: 14px;
+  font-size: clamp(15px, 1.6vw, 23px);
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+}
+
+/* 左侧简介 */
+.hero-intro {
+  position: absolute;
+  left: 7vw;
+  top: 50vh;
+  width: min(340px, 25vw);
+  z-index: 5;
+  will-change: opacity, transform;
+}
+
+.intro-inner {
+  transform: translate(
+    calc(var(--mx, 0) * -8px),
+    calc(var(--my, 0) * -6px)
+  );
+  transition: transform 1.4s ease-out;
+}
+
+.intro-lead {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  text-align: justify;
+}
+
+.intro-body {
+  margin-top: 14px;
+  font-size: 13px;
+  line-height: 2;
+  color: var(--ink-dim);
+  text-align: justify;
+}
+
+.intro-years {
+  margin-top: 28px;
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+}
+
+.intro-note {
+  margin-top: 9px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+}
+
+/* 中央会徽 */
+.hero-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  z-index: 3;
+  will-change: opacity, transform;
+}
+
+.emblem-tilt {
+  transform-style: preserve-3d;
+  transform: rotateY(calc(var(--mx, 0) * 9deg))
+    rotateX(calc(var(--my, 0) * -7deg));
+  transition: transform 1.3s ease-out;
+}
+
+.emblem-sway {
+  transform-style: preserve-3d;
+  animation: emblem-sway 26s ease-in-out infinite;
+}
+
+@keyframes emblem-sway {
+  0%,
+  100% {
+    transform: rotateY(-4.5deg);
+  }
+  50% {
+    transform: rotateY(4.5deg);
+  }
+}
+
+.emblem-img {
+  width: clamp(230px, 33vw, 420px);
+  height: auto;
+  filter: drop-shadow(0 34px 70px rgba(0, 0, 0, 0.55));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.emblem-ground {
+  position: absolute;
+  left: 50%;
+  top: 67%;
+  width: min(420px, 40vw);
+  height: 5vh;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.09),
+    transparent 75%
+  );
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+/* 右侧理念关键词 */
+.hero-motto {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.motto-inner {
+  position: absolute;
+  inset: 0;
+  transform: translate(
+    calc(var(--mx, 0) * 12px),
+    calc(var(--my, 0) * 9px)
+  );
+  transition: transform 1.4s ease-out;
+}
+
+.motto-item {
+  position: absolute;
+  right: 7vw;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: clamp(17px, 1.7vw, 23px);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+  pointer-events: auto;
+  transition: color 0.6s, filter 0.6s;
+}
+
+.motto-item:nth-child(1) { top: 18vh; }
+.motto-item:nth-child(2) { top: 36vh; }
+.motto-item:nth-child(3) { top: 54vh; }
+.motto-item:nth-child(4) { top: 72vh; }
+
+.motto-item i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-dim);
+  transition: background 0.6s, box-shadow 0.6s;
+}
+
+.motto-item:hover {
+  color: var(--ink);
+  filter: brightness(1.25);
+}
+
+.motto-item:hover i {
+  background: var(--blue);
+  box-shadow: 0 0 14px rgba(143, 180, 255, 0.85);
+}
+
+/* 底部引导 */
+.hero-explore {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 7vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  letter-spacing: 0.5em;
+  color: var(--ink-faint);
+  z-index: 5;
+  transition: color 0.5s;
+  will-change: opacity;
+}
+
+.hero-explore:hover {
+  color: var(--ink-soft);
+}
+
+.hero-explore::after {
+  content: '';
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(rgba(255, 255, 255, 0.4), transparent);
+  animation: explore-breathe 3.4s ease-in-out infinite;
+}
+
+@keyframes explore-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scaleY(0.45);
+    transform-origin: top;
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+/* 移动端：左右布局变为上下布局 */
+@media (max-width: 900px) {
+  .hero {
+    height: 190vh;
+  }
+
+  .hero-brand {
+    top: 6vh;
+    bottom: auto;
+  }
+
+  .hero-brand h1 {
+    font-size: clamp(34px, 8.5vw, 52px);
+    letter-spacing: 0.12em;
+  }
+
+  .hero-en {
+    margin-top: 10px;
+    font-size: 13px;
+    letter-spacing: 0.16em;
+  }
+
+  .hero-intro {
+    left: 0;
+    right: 0;
+    top: 22vh;
+    width: min(78vw, 340px);
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .intro-lead {
+    font-size: 15px;
+  }
+
+  .intro-body {
+    text-align: left;
+    font-size: 12px;
+    line-height: 1.9;
+  }
+
+  .intro-years {
+    margin-top: 18px;
+    font-size: 18px;
+  }
+
+  .hero-stage {
+    top: 36vh;
+    bottom: 19vh;
+    height: auto;
+  }
+
+  .emblem-img {
+    width: clamp(190px, 52vw, 300px);
+  }
+
+  .emblem-ground {
+    top: 78%;
+    width: 64vw;
+  }
+
+  .hero-motto {
+    top: auto;
+    bottom: 15vh;
+    height: auto;
+  }
+
+  .motto-inner {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px 28px;
+    padding: 0 24px;
+  }
+
+  .motto-item {
+    position: static;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+  }
+
+  .hero-explore {
+    bottom: 5vh;
+  }
+
+}
+
+/* 中屏：标题常规排布，不与会徽交错，避免与左侧简介重叠 */
+@media (min-width: 901px) and (max-width: 1099px) {
+  .hero-brand {
+    top: 13vh;
+    bottom: auto;
+  }
+
+  .hero-brand h1 {
+    font-size: clamp(40px, 5.5vw, 60px);
+  }
+
+  .hero-en {
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  .hero-intro {
+    top: 31vh;
+    width: min(300px, 24vw);
+  }
+
+  .intro-lead {
+    font-size: 16px;
+  }
+}

@@ -1,0 +1,163 @@
+.journey {
+  padding: 18vh 6vw 24vh;
+}
+
+.journey-head {
+  text-align: center;
+  margin-bottom: 13vh;
+}
+
+.journey-head h2 {
+  font-size: clamp(30px, 4.6vw, 56px);
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--ink);
+}
+
+.journey-span {
+  margin-top: 24px;
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 300;
+  letter-spacing: 0.5em;
+  color: var(--ink);
+}
+
+.journey-sub {
+  margin-top: 16px;
+  font-size: 13px;
+  letter-spacing: 0.42em;
+  color: var(--ink);
+}
+
+.era-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 56px;
+  max-width: 1480px;
+  margin: 0 auto;
+}
+
+.era {
+  position: relative;
+  transition:
+    filter 0.9s var(--ease),
+    transform 0.9s var(--ease);
+}
+
+/* 悬停一个板块时，突出当前、压暗其余 */
+.era-grid:hover .era {
+  filter: brightness(0.6);
+}
+
+.era-grid .era:hover {
+  filter: brightness(1.12);
+  transform: translateY(-5px);
+}
+
+.era + .era::before {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: 2%;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(rgba(255, 255, 255, 0.16), transparent 82%);
+}
+
+.era-range {
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  text-align: center;
+}
+
+.era-theme {
+  margin-top: 12px;
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  color: var(--ink);
+  text-align: center;
+}
+
+.era-photo {
+  position: relative;
+  margin-top: 32px;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0b0d11;
+  transition: transform 1.2s var(--ease);
+}
+
+.era-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.era:hover .era-photo {
+  transform: scale(1.025);
+}
+
+.era-events {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.era-events li {
+  display: flex;
+  gap: 14px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ink);
+  transition: color 0.8s;
+}
+
+.event-year {
+  flex: none;
+  width: 3.4em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.era:hover .event-text {
+  color: var(--ink);
+}
+
+@media (max-width: 900px) {
+  .journey {
+    padding: 14vh 7vw 18vh;
+  }
+
+  .journey-head {
+    margin-bottom: 9vh;
+  }
+
+  .era-grid {
+    grid-template-columns: 1fr;
+    gap: 72px;
+    max-width: 520px;
+  }
+
+  .era-grid:hover .era,
+  .era-grid .era:hover {
+    filter: none;
+    transform: none;
+  }
+
+  .era + .era::before {
+    left: 0;
+    right: 0;
+    top: -36px;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.16), transparent 82%);
+  }
+
+}
