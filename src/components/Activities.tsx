@@ -1,11 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { ACTIVITIES, WALL_PHOTOS, type WallPhoto } from '../data/content';
 import { useReveal } from '../hooks/useReveal';
+import MorphSlider from './MorphSlider';
 import './Activities.css';
 
 const RADIUS = 5;
-const DRAG_STEP = 128;
+const DRAG_STEP = 156;
 const DRAG_THRESHOLD = 8;
+
+const VIDEO_ITEMS = [
+  {
+    title: '协会成员比赛操作',
+    caption: '协会成员比赛操作 · 点击播放',
+    image: '/images/video-posters/competition-first-frame.png',
+    src: '/videos/activity-competition.mp4',
+  },
+  {
+    title: '逆战',
+    caption: '逆战 · 点击播放',
+    image: '/images/video-posters/against-the-war-first-frame.png',
+    src: '/videos/against-the-war.mp4',
+  },
+] as const;
 
 function wrap(value: number, length: number) {
   return ((value % length) + length) % length;
@@ -61,13 +77,97 @@ function CoverflowCard({
   );
 }
 
+function ActivityVideo() {
+  const [shouldRender, setShouldRender] = useState(
+    () => typeof window === 'undefined' || !('IntersectionObserver' in window)
+  );
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const videoBlockRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const target = videoBlockRef.current;
+    if (!target || shouldRender) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setShouldRender(true);
+        observer.disconnect();
+      },
+      { rootMargin: '800px 0px' }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [shouldRender]);
+
+  const activeVideo = VIDEO_ITEMS[activeVideoIndex];
+
+  return (
+    <div className="activity-video reveal" ref={videoBlockRef}>
+      <div className="activity-video-frame">
+        {!shouldRender && <div className="activity-video-placeholder" />}
+        {shouldRender && !playing && (
+          <MorphSlider
+            items={VIDEO_ITEMS}
+            intensity={0.55}
+            aberration={0.35}
+            drift={0.4}
+            autoplay
+            autoplayDelay={5}
+            radius={4}
+            onIndexChange={setActiveVideoIndex}
+          />
+        )}
+        {shouldRender && playing && (
+          <>
+            <video
+              key={activeVideo.src}
+              className="activity-video-player"
+              controls
+              autoPlay
+              playsInline
+              preload="metadata"
+              poster={activeVideo.image}
+              aria-label={`${activeVideo.title}视频`}
+              onEnded={() => setPlaying(false)}
+            >
+              <source src={activeVideo.src} type="video/mp4" />
+              您的浏览器不支持视频播放。
+            </video>
+            <button
+              type="button"
+              className="activity-video-back"
+              onClick={() => setPlaying(false)}
+            >
+              返回预览
+            </button>
+          </>
+        )}
+      </div>
+      {!playing && shouldRender && (
+        <button
+          type="button"
+          className="activity-video-play"
+          onClick={() => setPlaying(true)}
+        >
+          播放《{activeVideo.title}》
+        </button>
+      )}
+      <p>{playing ? `正在播放《${activeVideo.title}》` : '活动现场影像 · 滑动浏览 / 点击播放'}</p>
+    </div>
+  );
+}
+
 export default function Activities() {
   const [openPhoto, setOpenPhoto] = useState<WallPhoto | null>(null);
-  const [index, setIndex] = useState(0);
   const [pos, setPos] = useState(0);
   const [dragging, setDragging] = useState(false);
 
   const stageRef = useRef<HTMLDivElement>(null);
+  const dragFrameRef = useRef<number | null>(null);
+  const pendingPosRef = useRef(0);
   const pointerRef = useRef<{
     id: number;
     startX: number;
@@ -84,7 +184,7 @@ export default function Activities() {
     pointerRef.current = {
       id: event.pointerId,
       startX: event.clientX,
-      base: pos,
+      base: pendingPosRef.current,
       moved: false,
     };
     movedRef.current = false;
@@ -105,8 +205,23 @@ export default function Activities() {
       }
     }
     if (pointer.moved) {
-      setPos(pointer.base - dx / DRAG_STEP);
+      pendingPosRef.current = pointer.base - dx / DRAG_STEP;
+      if (dragFrameRef.current !== null) return;
+      dragFrameRef.current = requestAnimationFrame(() => {
+        dragFrameRef.current = null;
+        setPos(pendingPosRef.current);
+      });
     }
+  };
+
+  const snapToNearestPhoto = () => {
+    if (dragFrameRef.current !== null) {
+      cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+    }
+    const next = Math.round(pendingPosRef.current);
+    pendingPosRef.current = next;
+    setPos(next);
   };
 
   const finishDrag = (event: React.PointerEvent) => {
@@ -115,11 +230,7 @@ export default function Activities() {
     pointerRef.current = null;
     setDragging(false);
     if (pointer.moved) {
-      setPos((current) => {
-        const next = wrap(Math.round(current), total);
-        setIndex(next);
-        return next;
-      });
+      snapToNearestPhoto();
     }
   };
 
@@ -129,35 +240,21 @@ export default function Activities() {
     pointerRef.current = null;
     setDragging(false);
     if (pointer.moved) {
-      setPos((current) => {
-        const next = wrap(Math.round(current), total);
-        setIndex(next);
-        return next;
-      });
+      snapToNearestPhoto();
     }
   };
 
-  const openPhotoFromCard = useCallback(() => {
-    setOpenPhoto(WALL_PHOTOS[wrap(Math.round(index), total)]);
-  }, [index, total]);
-
-  const onStageClick = (event: React.MouseEvent) => {
-    if (movedRef.current) return;
-    const active = document.querySelector<HTMLButtonElement>(
-      '.coverflow-card.is-active .cf-card'
-    );
-    if (active && active.contains(event.target as Node)) {
-      openPhotoFromCard();
-    }
-  };
+  const openPhotoFromCard = useCallback((photo: WallPhoto) => {
+    if (!movedRef.current) setOpenPhoto(photo);
+  }, []);
 
   const stepIndex = useCallback(
     (direction: number) => {
-      const next = wrap(index + direction, total);
-      setIndex(next);
+      const next = Math.round(pendingPosRef.current) + direction;
+      pendingPosRef.current = next;
       setPos(next);
     },
-    [index, total]
+    []
   );
 
   const onStageKeyDown = (event: React.KeyboardEvent) => {
@@ -184,14 +281,30 @@ export default function Activities() {
     };
   }, [openPhoto]);
 
+  useEffect(
+    () => () => {
+      if (dragFrameRef.current !== null) {
+        cancelAnimationFrame(dragFrameRef.current);
+      }
+    },
+    []
+  );
+
   const cards = useMemo(() => {
     const list: { photo: WallPhoto; delta: number; key: number }[] = [];
+    const base = Math.floor(pos);
     for (let d = -RADIUS; d <= RADIUS; d += 1) {
-      const i = wrap(Math.round(pos) + d, total);
-      list.push({ photo: WALL_PHOTOS[i], delta: pos - i, key: i });
+      const virtualIndex = base + d;
+      list.push({
+        photo: WALL_PHOTOS[wrap(virtualIndex, total)],
+        delta: pos - virtualIndex,
+        key: virtualIndex,
+      });
     }
     return list;
   }, [pos, total]);
+
+  const activeIndex = wrap(Math.round(pos), total);
 
   return (
     <section id="activities" className="activities section" ref={revealRef}>
@@ -202,6 +315,8 @@ export default function Activities() {
         </p>
       </div>
 
+      <ActivityVideo />
+
       <div
         className={`wall-stage coverflow ${dragging ? 'is-dragging' : ''}`}
         ref={stageRef}
@@ -210,7 +325,6 @@ export default function Activities() {
         onPointerMove={onPointerMove}
         onPointerUp={finishDrag}
         onPointerCancel={onPointerCancel}
-        onClick={onStageClick}
         onKeyDown={onStageKeyDown}
         role="region"
         aria-label="活动照片轮转展示"
@@ -224,12 +338,12 @@ export default function Activities() {
               key={key}
               photo={photo}
               delta={delta}
-              onOpen={setOpenPhoto}
+              onOpen={openPhotoFromCard}
             />
           ))}
         </div>
         <div className="coverflow-counter" aria-live="polite">
-          {wrap(Math.round(pos), total) + 1} / {total}
+          {activeIndex + 1} / {total}
         </div>
         <p className="coverflow-hint">按住鼠标左键拖动 / 手指左右滑动 · 点击查看大图</p>
       </div>
