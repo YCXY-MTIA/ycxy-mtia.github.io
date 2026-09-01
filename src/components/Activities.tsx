@@ -12,13 +12,13 @@ const VIDEO_ITEMS = [
   {
     title: '协会成员比赛操作',
     caption: '协会成员比赛操作 · 点击播放',
-    image: '/images/video-posters/competition-first-frame.png',
+    image: '/images/video-posters/competition-first-frame.webp',
     src: '/videos/activity-competition.mp4',
   },
   {
     title: '逆战',
     caption: '逆战 · 点击播放',
-    image: '/images/video-posters/against-the-war-first-frame.png',
+    image: '/images/video-posters/against-the-war-first-frame.webp',
     src: '/videos/against-the-war.mp4',
   },
 ] as const;
