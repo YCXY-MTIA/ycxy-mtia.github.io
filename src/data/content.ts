@@ -158,11 +158,6 @@ export const WALL_PHOTOS: WallPhoto[] = [
 export const JOIN = {
   title: '加入我们',
   subtitle: '一起探索更多可能',
-  items: [
-    { label: '招新时间', value: '2026年9月20日' },
-    { label: '招新地点', value: '致真楼东二107' },
-    { label: '联系方式', value: 'QQ群:1084143228' },
-  ],
   footerEn: 'Medical Technology Interest Association',
   footerZh: '© 2026 宜春学院 · 医学科技兴趣协会',
 };

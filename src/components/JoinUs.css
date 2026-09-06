@@ -9,8 +9,8 @@
 .join-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: 1.2fr 1.55fr 0.85fr;
-  gap: 44px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(56px, 6vw, 96px);
   align-items: center;
   max-width: 1440px;
   width: 100%;
@@ -22,7 +22,6 @@
   justify-content: center;
   grid-column: 2;
   align-self: end;
-  margin-left: -240px;
 }
 
 .stairway-img {
@@ -54,28 +53,6 @@
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
 }
 
-.join-info {
-  display: flex;
-  flex-direction: column;
-  gap: 48px;
-  grid-column: 3;
-}
-
-.join-item-label {
-  font-size: 12px;
-  letter-spacing: 0.32em;
-  color: #fff;
-}
-
-.join-item-value {
-  margin-top: 11px;
-  font-size: clamp(19px, 2vw, 25px);
-  letter-spacing: 0.08em;
-  font-weight: 700;
-  white-space: nowrap;
-  color: var(--ink);
-}
-
 .site-footer {
   margin-top: 14vh;
   padding: 30px 0 26px;
@@ -103,8 +80,7 @@
     gap: 64px;
   }
 
-  .join-visual,
-  .join-info {
+  .join-visual {
     grid-column: auto;
   }
 
@@ -128,9 +104,4 @@
     line-height: 1.15;
   }
 
-  .join-info {
-    align-items: center;
-    text-align: center;
-    gap: 36px;
-  }
 }

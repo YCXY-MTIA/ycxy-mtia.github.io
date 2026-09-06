@@ -27,18 +27,6 @@ export default function JoinUs() {
           />
         </div>
 
-        <aside className="join-info">
-          {JOIN.items.map((item, i) => (
-            <div
-              className="join-item reveal"
-              style={{ '--d': `${0.3 + i * 0.15}s` } as CSSProperties}
-              key={item.label}
-            >
-              <p className="join-item-label">{item.label}</p>
-              <p className="join-item-value">{item.value}</p>
-            </div>
-          ))}
-        </aside>
       </div>
 
       <footer className="site-footer">
