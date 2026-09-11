@@ -95,7 +95,7 @@ function ActivityVideo() {
         setShouldRender(true);
         observer.disconnect();
       },
-      { rootMargin: '800px 0px' }
+      { rootMargin: '0px' }
     );
 
     observer.observe(target);
@@ -128,7 +128,7 @@ function ActivityVideo() {
               controls
               autoPlay
               playsInline
-              preload="metadata"
+              preload="none"
               poster={activeVideo.image}
               aria-label={`${activeVideo.title}视频`}
               onEnded={() => setPlaying(false)}

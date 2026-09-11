@@ -42,7 +42,7 @@ export const JOURNEY = {
       range: '2002-2013',
       theme: '探索·初创',
       photoLabel: '手术模拟照片',
-      image: '/images/journey-1.png',
+      image: '/images/journey-1-optimized.jpg',
       events: [
         '2002 医学科技兴趣协会成立',
         '2005 第一届科普大使选拔赛',
@@ -55,7 +55,7 @@ export const JOURNEY = {
       range: '2014-2019',
       theme: '实践·拓展',
       photoLabel: '临床病理分析照片',
-      image: '/images/journey-2.jpg',
+      image: '/images/journey-2-optimized.jpg',
       events: [
         '2014 荣获临床技能大赛华东赛区三等奖',
         '2015 荣获临床技能大赛华东赛区三等奖',
@@ -68,7 +68,7 @@ export const JOURNEY = {
       range: '2020-2023',
       theme: '创新·竞赛',
       photoLabel: '生化歌曲照片',
-      image: '/images/journey-3.jpg',
+      image: '/images/journey-3-optimized.jpg',
       events: [
         '2021 第一届生化歌曲大赛',
         '2022 第一届机能实验大赛',
@@ -81,7 +81,7 @@ export const JOURNEY = {
       range: '2024至2026',
       theme: '突破·延续',
       photoLabel: '运动生物照片',
-      image: '/images/journey-4.jpg',
+      image: '/images/journey-4-optimized.jpg',
       events: [
         '2024 第一届组织切片鉴别竞赛',
         '2025 第一届“救在当下”趣味赛',
