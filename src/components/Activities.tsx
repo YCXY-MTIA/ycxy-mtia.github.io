@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { ACTIVITIES, WALL_PHOTOS, type WallPhoto } from '../data/content';
 import { useReveal } from '../hooks/useReveal';
 import MorphSlider from './MorphSlider';
+import { advanceGalleryMotion, type GalleryMotion } from '../lib/galleryMotion';
 import './Activities.css';
 
 const RADIUS = 5;
@@ -164,6 +165,8 @@ export default function Activities() {
   const [openPhoto, setOpenPhoto] = useState<WallPhoto | null>(null);
   const [pos, setPos] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [coasting, setCoasting] = useState(false);
+  const motionFrameRef = useRef<number | null>(null);
 
   const stageRef = useRef<HTMLDivElement>(null);
   const dragFrameRef = useRef<number | null>(null);
@@ -171,6 +174,11 @@ export default function Activities() {
   const pointerRef = useRef<{
     id: number;
     startX: number;
+    startY: number;
+    lastX: number;
+    lastTime: number;
+    velocity: number;
+    mobile: boolean;
     base: number;
     moved: boolean;
   } | null>(null);
@@ -179,11 +187,68 @@ export default function Activities() {
 
   const total = WALL_PHOTOS.length;
 
+  const stopMotion = useCallback(() => {
+    if (motionFrameRef.current !== null) cancelAnimationFrame(motionFrameRef.current);
+    motionFrameRef.current = null;
+    setCoasting(false);
+  }, []);
+
+  const coast = (velocity: number) => {
+    if (dragFrameRef.current !== null) {
+      cancelAnimationFrame(dragFrameRef.current);
+      dragFrameRef.current = null;
+    }
+    stopMotion();
+    let motion: GalleryMotion = { position: pendingPosRef.current, velocity, target: null };
+    let lastTime = performance.now();
+    setCoasting(true);
+    const frame = (now: number) => {
+      const next = advanceGalleryMotion(motion, (now - lastTime) / 1000);
+      lastTime = now;
+      motion = next;
+      pendingPosRef.current = next.position;
+      setPos(next.position);
+      if (next.done) {
+        motionFrameRef.current = null;
+        setCoasting(false);
+      } else {
+        motionFrameRef.current = requestAnimationFrame(frame);
+      }
+    };
+    motionFrameRef.current = requestAnimationFrame(frame);
+  };
+
+  useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 600px)');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finish = () => {
+      if (motionFrameRef.current === null) return;
+      stopMotion();
+      pendingPosRef.current = Math.round(pendingPosRef.current);
+      setPos(pendingPosRef.current);
+    };
+    mobile.addEventListener('change', finish);
+    reduced.addEventListener('change', finish);
+    document.addEventListener('visibilitychange', finish);
+    return () => {
+      mobile.removeEventListener('change', finish);
+      reduced.removeEventListener('change', finish);
+      document.removeEventListener('visibilitychange', finish);
+      if (motionFrameRef.current !== null) cancelAnimationFrame(motionFrameRef.current);
+    };
+  }, [stopMotion]);
+
   const onPointerDown = (event: React.PointerEvent) => {
     if (!event.isPrimary || pointerRef.current) return;
+    stopMotion();
     pointerRef.current = {
       id: event.pointerId,
       startX: event.clientX,
+      startY: event.clientY,
+      lastX: event.clientX,
+      lastTime: event.timeStamp,
+      velocity: 0,
+      mobile: window.matchMedia('(max-width: 600px)').matches,
       base: pendingPosRef.current,
       moved: false,
     };
@@ -194,6 +259,22 @@ export default function Activities() {
     const pointer = pointerRef.current;
     if (!pointer || event.pointerId !== pointer.id) return;
     const dx = event.clientX - pointer.startX;
+    if (pointer.mobile) {
+      const dy = event.clientY - pointer.startY;
+      if (!pointer.moved && Math.abs(dy) > DRAG_THRESHOLD && Math.abs(dy) > Math.abs(dx)) {
+        pointerRef.current = null;
+        return;
+      }
+      const dt = (event.timeStamp - pointer.lastTime) / 1000;
+      if (dt > 0) {
+        const sample = -(event.clientX - pointer.lastX) / DRAG_STEP / dt;
+        const blend = 1 - Math.exp(-dt / 0.035);
+        pointer.velocity += (sample - pointer.velocity) * blend;
+        pointer.velocity = Math.max(-12, Math.min(12, pointer.velocity));
+      }
+      pointer.lastX = event.clientX;
+      pointer.lastTime = event.timeStamp;
+    }
     if (!pointer.moved && Math.abs(dx) > DRAG_THRESHOLD) {
       pointer.moved = true;
       movedRef.current = true;
@@ -230,7 +311,15 @@ export default function Activities() {
     pointerRef.current = null;
     setDragging(false);
     if (pointer.moved) {
-      snapToNearestPhoto();
+      if (pointer.mobile && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const age = Math.max(0, (event.timeStamp - pointer.lastTime) / 1000);
+        coast(pointer.velocity * Math.exp(-age * 12));
+      } else {
+        snapToNearestPhoto();
+      }
+    }
+    if (stageRef.current?.hasPointerCapture(event.pointerId)) {
+      stageRef.current.releasePointerCapture(event.pointerId);
     }
   };
 
@@ -245,16 +334,20 @@ export default function Activities() {
   };
 
   const openPhotoFromCard = useCallback((photo: WallPhoto) => {
-    if (!movedRef.current) setOpenPhoto(photo);
-  }, []);
+    if (!movedRef.current) {
+      stopMotion();
+      setOpenPhoto(photo);
+    }
+  }, [stopMotion]);
 
   const stepIndex = useCallback(
     (direction: number) => {
+      stopMotion();
       const next = Math.round(pendingPosRef.current) + direction;
       pendingPosRef.current = next;
       setPos(next);
     },
-    []
+    [stopMotion]
   );
 
   const onStageKeyDown = (event: React.KeyboardEvent) => {
@@ -318,13 +411,14 @@ export default function Activities() {
       <ActivityVideo />
 
       <div
-        className={`wall-stage coverflow ${dragging ? 'is-dragging' : ''}`}
+        className={`wall-stage coverflow ${dragging ? 'is-dragging' : ''} ${coasting ? 'is-coasting' : ''}`}
         ref={stageRef}
         tabIndex={0}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={finishDrag}
         onPointerCancel={onPointerCancel}
+        onLostPointerCapture={onPointerCancel}
         onKeyDown={onStageKeyDown}
         role="region"
         aria-label="活动照片轮转展示"

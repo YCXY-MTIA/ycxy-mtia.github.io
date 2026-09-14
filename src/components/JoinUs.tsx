@@ -19,6 +19,14 @@ export default function JoinUs() {
           className="join-visual reveal"
           style={{ '--d': '0.2s' } as CSSProperties}
         >
+          <div className="mobile-join-caption">
+            <span>一起创造更多可能</span>
+            <strong>加入我们</strong>
+          </div>
+          <a className="mobile-join-door" href="https://qm.qq.com/q/FeoZxdMgJG"
+            target="_blank" rel="noopener noreferrer" aria-label="打开 QQ 招新群，群号 1084143228">
+            <span>点此处加群</span>
+          </a>
           <img
             className="stairway-img"
             src="/images/stairway.png"

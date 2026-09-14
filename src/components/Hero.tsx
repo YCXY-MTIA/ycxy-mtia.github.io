@@ -8,6 +8,7 @@ export default function Hero() {
   const brandRef = useRef<HTMLDivElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const mottoRef = useRef<HTMLDivElement>(null);
+  const mobileYearsRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLAnchorElement>(null);
   const raysRef = useRef<HTMLDivElement>(null);
@@ -24,9 +25,10 @@ export default function Hero() {
       introRef.current.style.opacity = String(Math.max(0, 1 - p * 3.4));
       introRef.current.style.transform = `translateX(${-26 * p}px)`;
     }
-    if (mottoRef.current) {
-      mottoRef.current.style.opacity = String(Math.max(0, 1 - p * 3.4));
-      mottoRef.current.style.transform = `translateX(${26 * p}px)`;
+    for (const element of [mottoRef.current, mobileYearsRef.current]) {
+      if (!element) continue;
+      element.style.opacity = String(Math.max(0, 1 - p * 3.4));
+      element.style.transform = `translateX(${26 * p}px)`;
     }
     if (stageRef.current) {
       const opacity = p < 0.72 ? 1 : Math.max(0, (0.95 - p) / 0.23);
@@ -125,6 +127,11 @@ export default function Hero() {
             </div>
           </div>
           <div className="emblem-ground" aria-hidden="true" />
+        </div>
+
+        <div className="hero-mobile-years" ref={mobileYearsRef}>
+          <p className="intro-years">{HERO.years}</p>
+          <p className="intro-note">{HERO.yearsNote}</p>
         </div>
 
         <div className="hero-motto" ref={mottoRef}>

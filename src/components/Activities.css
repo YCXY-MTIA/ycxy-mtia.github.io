@@ -389,3 +389,12 @@
     height: min(58vh, 460px);
   }
 }
+
+@media (max-width: 600px) {
+  .activities { overflow-x: clip; }
+  .coverflow-card {
+    transform: translateX(calc(-1 * var(--dx))) translateZ(var(--z))
+      rotateY(calc(-1 * var(--rot))) scale(var(--scale));
+  }
+  .is-coasting .coverflow-card { transition: none; }
+}
