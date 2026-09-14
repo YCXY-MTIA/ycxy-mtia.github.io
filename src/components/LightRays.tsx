@@ -112,6 +112,9 @@ export default function LightRays({
     const container = containerRef.current;
     if (!container) return;
 
+    const mobile = window.matchMedia('(max-width: 600px)');
+    let lastRenderTime = -Infinity;
+    let lastSize = '';
     let cancelled = false;
     let ready = false;
     let visible = false;
@@ -123,9 +126,13 @@ export default function LightRays({
     const updatePlacement = () => {
       if (!containerRef.current || !renderer || !uniforms) return;
 
-      renderer.dpr = Math.min(window.devicePixelRatio, 2);
-
       const { clientWidth: wCSS, clientHeight: hCSS } = containerRef.current;
+      const nextDpr = mobile.matches ? 1 : Math.min(window.devicePixelRatio, 2);
+      const size = `${wCSS}:${hCSS}:${nextDpr}`;
+      // Mobile browser chrome can emit resize without changing the stable hero size.
+      if (size === lastSize) return;
+      lastSize = size;
+      renderer.dpr = nextDpr;
       renderer.setSize(wCSS, hCSS);
 
       const dpr = renderer.dpr;
@@ -143,7 +150,13 @@ export default function LightRays({
       if (cancelled || !renderer || !uniforms || !mesh) {
         return;
       }
-      if (!visible) return;
+      if (!visible || document.hidden) return;
+      // Keep the soft background at 30 fps on phones; foreground scrolling stays full-rate.
+      if (mobile.matches && t - lastRenderTime < 1000 / 30 - 1) {
+        animationId = requestAnimationFrame(loop);
+        return;
+      }
+      lastRenderTime = t;
 
       uniforms.iTime.value = t * 0.001;
 
@@ -181,7 +194,7 @@ export default function LightRays({
     };
 
     const startLoop = () => {
-      if (ready && visible && animationId === null) {
+      if (ready && visible && !document.hidden && animationId === null) {
         animationId = requestAnimationFrame(loop);
       }
     };
@@ -193,7 +206,7 @@ export default function LightRays({
       if (cancelled || !container) return;
 
       renderer = new Renderer({
-        dpr: Math.min(window.devicePixelRatio, 2),
+        dpr: mobile.matches ? 1 : Math.min(window.devicePixelRatio, 2),
         alpha: true,
       });
       rendererRef.current = renderer;
@@ -357,6 +370,11 @@ void main() {
       { threshold: 0.1 },
     );
     observer.observe(container);
+    const onVisibilityChange = () => {
+      if (document.hidden) stopLoop();
+      else startLoop();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     initializeWebGL();
 
@@ -364,6 +382,7 @@ void main() {
       cancelled = true;
       stopLoop();
       observer.disconnect();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       window.removeEventListener('resize', updatePlacement);
 
       try {

@@ -13,9 +13,16 @@ export default function Hero() {
   const exploreRef = useRef<HTMLAnchorElement>(null);
   const raysRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
+  const lastMobileProgressRef = useRef<number | null>(null);
 
   // 滚动驱动：首页各元素随滚动进度缓慢收拢、淡出
   const sectionRef = useSectionProgress<HTMLElement>((p) => {
+    if (window.matchMedia('(max-width: 600px)').matches) {
+      if (lastMobileProgressRef.current === p) return;
+      lastMobileProgressRef.current = p;
+    } else {
+      lastMobileProgressRef.current = null;
+    }
     if (brandRef.current) {
       brandRef.current.style.opacity = String(Math.max(0, 1 - p * 2.4));
       brandRef.current.style.transform =
@@ -34,7 +41,7 @@ export default function Hero() {
       const opacity = p < 0.72 ? 1 : Math.max(0, (0.95 - p) / 0.23);
       stageRef.current.style.opacity = String(opacity);
       stageRef.current.style.transform =
-        `translateY(${-11 * p}vh) scale(${1 - 0.24 * p})`;
+        `translateY(calc(${-11 * p} * var(--hero-vh, 1vh))) scale(${1 - 0.24 * p})`;
     }
     if (exploreRef.current) {
       exploreRef.current.style.opacity = String(Math.max(0, 1 - p * 5));
@@ -42,7 +49,7 @@ export default function Hero() {
     if (raysRef.current) {
       raysRef.current.style.opacity = String(Math.max(0, 0.95 - p * 1.1));
     }
-  });
+  }, stickyRef);
 
   // 鼠标视差：会徽倾斜、环境光与文字轻微位移，带缓动
   useEffect(() => {
@@ -56,6 +63,7 @@ export default function Hero() {
     let raf = 0;
 
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || window.matchMedia('(max-width: 600px)').matches) return;
       targetX = e.clientX / window.innerWidth - 0.5;
       targetY = e.clientY / window.innerHeight - 0.5;
       if (!raf) raf = requestAnimationFrame(step);

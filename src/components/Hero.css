@@ -413,6 +413,7 @@
 .hero-mobile-years { display: none; }
 
 @media (max-width: 600px) {
+  .hero { height: 190svh; --hero-vh: 1svh; }
   .hero-sticky {
     height: 100svh;
     min-height: 640px;
@@ -436,7 +437,7 @@
   .hero-intro .intro-years, .hero-intro .intro-note { display: none; }
   .hero-stage { min-height: 0; }
   .emblem-img { width: min(44vw, 210px); max-height: 100%; object-fit: contain; }
-  .emblem-ground { top: auto; bottom: 0; }
+  .emblem-ground { top: auto; bottom: 0; height: 5svh; }
   .hero-mobile-years { display: block; text-align: center; z-index: 5; }
   .hero-mobile-years .intro-years { margin: 0; font-size: 18px; }
   .hero-mobile-years .intro-note { margin-top: 6px; font-size: 10px; }

@@ -6,10 +6,11 @@ import { useEffect, useRef, type RefObject } from 'react';
  */
 export function useSectionProgress<T extends HTMLElement>(
   onProgress: (progress: number) => void,
+  viewportRef: RefObject<HTMLElement | null>,
 ): RefObject<T | null> {
   const ref = useRef<T | null>(null);
   const cbRef = useRef(onProgress);
-  cbRef.current = onProgress;
+  useEffect(() => { cbRef.current = onProgress; });
 
   useEffect(() => {
     const el = ref.current;
@@ -17,10 +18,15 @@ export function useSectionProgress<T extends HTMLElement>(
 
     let raf = 0;
     const measure = () => {
-      cancelAnimationFrame(raf);
+      if (raf) return;
       raf = requestAnimationFrame(() => {
+        raf = 0;
         const rect = el.getBoundingClientRect();
-        const total = rect.height - window.innerHeight;
+        // Use the same stable height as the sticky scene, not Safari's changing innerHeight.
+        const viewportHeight = window.matchMedia('(max-width: 600px)').matches
+          ? (viewportRef.current?.clientHeight ?? window.innerHeight)
+          : window.innerHeight;
+        const total = rect.height - viewportHeight;
         const progress =
           total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
         cbRef.current(progress);
@@ -35,7 +41,7 @@ export function useSectionProgress<T extends HTMLElement>(
       window.removeEventListener('scroll', measure);
       window.removeEventListener('resize', measure);
     };
-  }, []);
+  }, [viewportRef]);
 
   return ref;
 }
