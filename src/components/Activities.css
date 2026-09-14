@@ -395,3 +395,18 @@
 }
 
 .is-coasting .coverflow-card { transition: none; }
+
+/* A narrow desktop window should still use the larger desktop gallery. */
+@media (hover: hover) and (pointer: fine) {
+  .wall-stage.coverflow {
+    height: clamp(440px, 58vh, 520px);
+  }
+
+  .coverflow-card.size-land {
+    --cw: clamp(240px, 30vw, 320px);
+  }
+
+  .coverflow-card.size-port {
+    --cw: clamp(180px, 22vw, 240px);
+  }
+}

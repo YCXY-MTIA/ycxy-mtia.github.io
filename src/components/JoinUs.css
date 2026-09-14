@@ -22,6 +22,7 @@
   justify-content: center;
   grid-column: 2;
   align-self: end;
+  position: relative;
 }
 
 .join-image-link {
@@ -31,6 +32,21 @@
 .join-image-link:focus-visible {
   outline: 3px solid #8fb4ff;
   outline-offset: 4px;
+}
+
+.desktop-join-door {
+  position: absolute;
+  left: 4%;
+  top: 4%;
+  width: 24%;
+  height: 34%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #18202a;
+  font-size: clamp(10px, 1vw, 14px);
+  font-weight: 600;
+  pointer-events: none;
 }
 
 .stairway-img {
@@ -121,6 +137,7 @@
   .join-grid { display: block; }
   .stairway-caption { display: none; }
   .join-visual { position: relative; width: 100%; max-width: 430px; margin: 0 auto; }
+  .desktop-join-door { display: none; }
   .stairway-img { width: 100%; }
   .mobile-join-caption {
     display: flex; flex-direction: column; gap: 10px;
@@ -135,4 +152,9 @@
     color: #18202a; font-size: clamp(10px, 2.6vw, 13px); font-weight: 600;
   }
   .mobile-join-door:focus-visible { outline: 2px solid #8fb4ff; outline-offset: 3px; }
+}
+
+@media (max-width: 600px) and (hover: hover) and (pointer: fine) {
+  .desktop-join-door { display: flex; }
+  .mobile-join-door { display: none; }
 }

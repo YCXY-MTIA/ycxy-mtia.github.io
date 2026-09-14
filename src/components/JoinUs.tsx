@@ -34,6 +34,7 @@ export default function JoinUs() {
             rel="noopener noreferrer"
             aria-label="打开 QQ 招新群，群号 1084143228"
           >
+            <span className="desktop-join-door">点此处加群</span>
             <img
               className="stairway-img"
               src="/images/stairway.png"
