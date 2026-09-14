@@ -418,7 +418,10 @@ export default function Activities() {
         onPointerMove={onPointerMove}
         onPointerUp={finishDrag}
         onPointerCancel={onPointerCancel}
-        onLostPointerCapture={onPointerCancel}
+        onLostPointerCapture={(event) => {
+          // Touch capture moves from the card to the stage; ignore the card's bubbling loss event.
+          if (event.target === event.currentTarget) onPointerCancel(event);
+        }}
         onKeyDown={onStageKeyDown}
         role="region"
         aria-label="活动照片轮转展示"
