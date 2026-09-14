@@ -178,7 +178,6 @@ export default function Activities() {
     lastX: number;
     lastTime: number;
     velocity: number;
-    mobile: boolean;
     base: number;
     moved: boolean;
   } | null>(null);
@@ -248,8 +247,7 @@ export default function Activities() {
       lastX: event.clientX,
       lastTime: event.timeStamp,
       velocity: 0,
-      mobile: window.matchMedia('(max-width: 600px)').matches,
-      base: pendingPosRef.current,
+    base: pendingPosRef.current,
       moved: false,
     };
     movedRef.current = false;
@@ -259,22 +257,20 @@ export default function Activities() {
     const pointer = pointerRef.current;
     if (!pointer || event.pointerId !== pointer.id) return;
     const dx = event.clientX - pointer.startX;
-    if (pointer.mobile) {
-      const dy = event.clientY - pointer.startY;
-      if (!pointer.moved && Math.abs(dy) > DRAG_THRESHOLD && Math.abs(dy) > Math.abs(dx)) {
-        pointerRef.current = null;
-        return;
-      }
-      const dt = (event.timeStamp - pointer.lastTime) / 1000;
-      if (dt > 0) {
-        const sample = -(event.clientX - pointer.lastX) / DRAG_STEP / dt;
-        const blend = 1 - Math.exp(-dt / 0.035);
-        pointer.velocity += (sample - pointer.velocity) * blend;
-        pointer.velocity = Math.max(-12, Math.min(12, pointer.velocity));
-      }
-      pointer.lastX = event.clientX;
-      pointer.lastTime = event.timeStamp;
+    const dy = event.clientY - pointer.startY;
+    if (!pointer.moved && Math.abs(dy) > DRAG_THRESHOLD && Math.abs(dy) > Math.abs(dx)) {
+      pointerRef.current = null;
+      return;
     }
+    const dt = (event.timeStamp - pointer.lastTime) / 1000;
+    if (dt > 0) {
+      const sample = -(event.clientX - pointer.lastX) / DRAG_STEP / dt;
+      const blend = 1 - Math.exp(-dt / 0.035);
+      pointer.velocity += (sample - pointer.velocity) * blend;
+      pointer.velocity = Math.max(-12, Math.min(12, pointer.velocity));
+    }
+    pointer.lastX = event.clientX;
+    pointer.lastTime = event.timeStamp;
     if (!pointer.moved && Math.abs(dx) > DRAG_THRESHOLD) {
       pointer.moved = true;
       movedRef.current = true;
@@ -311,7 +307,7 @@ export default function Activities() {
     pointerRef.current = null;
     setDragging(false);
     if (pointer.moved) {
-      if (pointer.mobile && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         const age = Math.max(0, (event.timeStamp - pointer.lastTime) / 1000);
         coast(pointer.velocity * Math.exp(-age * 12));
       } else {

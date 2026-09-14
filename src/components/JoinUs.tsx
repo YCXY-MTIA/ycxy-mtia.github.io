@@ -27,12 +27,20 @@ export default function JoinUs() {
             target="_blank" rel="noopener noreferrer" aria-label="打开 QQ 招新群，群号 1084143228">
             <span>点此处加群</span>
           </a>
-          <img
-            className="stairway-img"
-            src="/images/stairway.png"
-            alt="向上延伸的阶梯"
-            loading="lazy"
-          />
+          <a
+            className="join-image-link"
+            href="https://qm.qq.com/q/FeoZxdMgJG"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="打开 QQ 招新群，群号 1084143228"
+          >
+            <img
+              className="stairway-img"
+              src="/images/stairway.png"
+              alt="向上延伸的阶梯，点击加入 QQ 招新群"
+              loading="lazy"
+            />
+          </a>
         </div>
 
       </div>

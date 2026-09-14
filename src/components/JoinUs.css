@@ -24,6 +24,15 @@
   align-self: end;
 }
 
+.join-image-link {
+  display: block;
+}
+
+.join-image-link:focus-visible {
+  outline: 3px solid #8fb4ff;
+  outline-offset: 4px;
+}
+
 .stairway-img {
   width: min(560px, 100%);
   height: auto;
